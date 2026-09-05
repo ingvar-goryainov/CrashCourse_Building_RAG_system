@@ -1,5 +1,25 @@
 # RAG Workshop — День 2: Асистент ріелтора (Realistic End-to-End)
 
+> ### 🏋️ Домашнє завдання: `rag_workshop_02_training_assistant.ipynb`
+>
+> Форк цього воркшопу на **власному корпусі тренувань** (`data/`): таблиці програми 8.0 (CSV),
+> лог силових тестів (CSV), програми 3.0 і 4.0 (PDF), протокол антикрихкості (MD).
+>
+> **Запуск:**
+> ```bash
+> python -m venv .venv && source .venv/bin/activate     # у корені репозиторію
+> pip install openai chromadb python-dotenv pandas pymupdf
+> cp .env.example .env                                   # і вписати свій OPENAI_API_KEY
+> jupyter lab Day_2/rag_workshop_02_training_assistant.ipynb
+> ```
+>
+> Комірка **«Dry run»** показує результат парсингу **без** звернень до OpenAI — зручно
+> перевірити нарізку до того, як витрачати токени.
+>
+> ⚠️ Ноутбук ріелтора (`rag_workshop_02_realtor_assistant.ipynb`) більше **не запускається**:
+> його корпус (`listings.csv`, `clients.csv`, `contracts/` тощо) прибрано з `data/`.
+> Відновити файли можна з коміту `90cb144`.
+
 Реалістичний приклад RAG-системи на синтетичних, але структурованих даних реальної агентури нерухомості.
 
 **Що розбираємо:**

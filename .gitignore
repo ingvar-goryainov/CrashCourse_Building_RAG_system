@@ -1,0 +1,13 @@
+# credentials
+.env
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# генеровані вектор-індекси (перебудовуються з data/)
+chroma_data/
+Day_2/chroma_data/
+Day_3/chroma_data/
