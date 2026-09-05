@@ -16,6 +16,7 @@ RAG-система над **власним корпусом тренувань**
 - **Історія діалогу**: чат у межах сесії з контекстом попередніх реплік
 - **Промпт-інжиніринг**: цитування джерел, стійкість до галюцинацій, структурована відповідь
 - **Evaluation**: золотий набір і метрики якості (coverage джерел, судження LLM)
+- **Telegram-бот**: інтерфейс до RAG-асистента з історією по `chat_id` (опційно)
 
 ---
 
@@ -76,13 +77,17 @@ Notes: —
 
 ## Необхідні credentials
 
-**OpenAI API key** (`OPENAI_API_KEY`)
+**1. OpenAI API key** (`OPENAI_API_KEY`) — обовʼязковий
 - Отримати тут: [https://platform.openai.com/](https://platform.openai.com/)
 - Локально: `.env` у корені репозиторію (шаблон — `.env.example`)
 - На Colab: додайте через Secrets (🔑 icon)
 - Потрібен активний billing на акаунті
 
-Telegram-бот у цьому ноутбуці **відсутній** — секцію прибрано разом із її токеном.
+**2. Telegram Bot Token** (`TELEGRAM_BOT_TOKEN`) — опційний
+- Створіть бота через **@BotFather** у Telegram і отримайте токен
+- Локально: той самий `.env`; на Colab: Secrets (🔑)
+- Потрібен лише для секції **05 — Telegram-бот**; без нього комірки бота
+  просто повідомлять про відсутність токена, а решта ноутбука працює як завжди
 
 ---
 
@@ -101,7 +106,7 @@ https://colab.research.google.com/github/ingvar-goryainov/CrashCourse_Building_R
 - `data/` — корпус документів для індексації (CSV, Markdown, PDF)
 - `chroma_data/training_assistant/` — вектор-індекс (генерується, у git не потрапляє)
 - `AdvancedRAG_pipeline.png` — загальна схема пайплайну
-- `requirements.txt` — залежності воркшопу
+- `requirements.txt` — залежності (включно з `python-telegram-bot` для секції 05)
 - `README.md` — цей файл
 - `rag_workshop_02_realtor_assistant.ipynb` — оригінал воркшопу, **більше не запускається** (див. нижче)
 
@@ -111,13 +116,16 @@ https://colab.research.google.com/github/ingvar-goryainov/CrashCourse_Building_R
 
 1. **Відкрийте** notebook у Colab через бейдж вище.
 2. **Збережіть копію**: `File → Save a copy in Drive`.
-3. **Додайте secret** (ліва панель → 🔑 key icon): `OPENAI_API_KEY`.
+3. **Додайте secrets** (ліва панель → 🔑 key icon):
+   - `OPENAI_API_KEY` — ваш OpenAI ключ
+   - `TELEGRAM_BOT_TOKEN` — токен бота (опційно)
 4. **Запустіть комірки** послідовно (Shift+Enter):
    - **Setup** — встановлення бібліотек і клонування репозиторію в `/content`
    - **Dry run** — парсинг `data/` **без** звернень до OpenAI
    - **Індексація** — embeddings і `upsert` у Chroma
    - **Retrieval** / **Generation** — приклади пошуку й відповідей із джерелами
    - **Router**, **Історія**, **Evaluation** — додаткові кейси
+   - **Telegram-бот** (опційно) — запускається окремою коміркою
 
 ---
 
@@ -128,11 +136,12 @@ https://colab.research.google.com/github/ingvar-goryainov/CrashCourse_Building_R
 python -m venv .venv
 source .venv/bin/activate          # На Windows: .venv\Scripts\activate
 
-pip install openai chromadb python-dotenv pandas pymupdf
-# (Day_2/requirements.txt теж підійде — це надмножина, там ще python-telegram-bot,
-#  який цьому ноутбуку не потрібен)
+pip install -r Day_2/requirements.txt
+# або поштучно:
+# pip install openai chromadb python-dotenv pandas pymupdf python-telegram-bot
 
 cp .env.example .env               # і вписати свій OPENAI_API_KEY
+                                   # (+ TELEGRAM_BOT_TOKEN, якщо потрібен бот)
 
 jupyter lab Day_2/rag_workshop_02_training_assistant.ipynb
 ```
@@ -199,6 +208,16 @@ where           source / $and(kind, week) / $in — повертають очі�
 - **`collection.count()` росте з кожним прогоном**
   - Значить, id перестали бути стабільними — перевірте `_safe_id_base` і суфікси
     (`::w{week}`, `::r{row}`, `::p{page}::c{chunk}`)
+
+- **Telegram-бот не запускається**
+  - Переконайтеся, що `TELEGRAM_BOT_TOKEN` є в `.env` (локально) або Secrets (Colab);
+    токен видає **@BotFather**
+  - Перед коміркою бота виконайте секції **роутера** і **історії** — бот викликає
+    `rag_answer_with_router_history`
+  - `RuntimeError: This event loop is already running` — запускайте комірку бота саме
+    в Jupyter/Colab (там `await` на верхньому рівні дозволений), а не через `python file.py`
+  - `Conflict: terminated by other getUpdates request` — з тим самим токеном уже
+    працює інший інстанс; зупиніть його коміркою **зупинки бота** нижче
 
 ---
 

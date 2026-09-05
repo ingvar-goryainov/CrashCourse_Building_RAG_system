@@ -116,7 +116,11 @@ paths, citing the *file* for CSV facts rather than a row id.
   coverage + LLM judge, including at least one hallucination probe the corpus
   cannot answer.
 
-Dropped: the Telegram bot section.
+- **Telegram bot** (added back on request after the initial build): optional
+  section 05, driving `rag_answer_with_router_history` with the Telegram
+  `chat_id` so each chat keeps its own history. `/start` and `/reset` commands,
+  plus a stop cell. Absent token degrades to a printed notice — it never raises,
+  so the rest of the notebook is unaffected.
 
 ## Verification
 
@@ -129,7 +133,6 @@ Dropped: the Telegram bot section.
 
 ## Out of scope
 
-- Telegram bot
 - Local/Ollama provider variant (Day 3 covers it)
 - Re-targeting the original realtor notebook, which the corpus swap left
   unrunnable (files recoverable from commit `90cb144`)
